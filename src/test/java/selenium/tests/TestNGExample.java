@@ -14,7 +14,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import selenium.page_objects.GooglePage;
 import selenium.page_objects.StackoverflowPage;
+import selenium.page_objects.GooglePage.GooglePageBuilder;
 
 public class TestNGExample {
 
@@ -27,11 +29,21 @@ public class TestNGExample {
 		return new Object[][] { { Integer.valueOf(2) }, };
 	}
 
-	@Test(dataProvider = "data-provider-link-number", priority = 0)
+	@Test(dataProvider = "data-provider-link-number", priority = 0, enabled = false)
 	public void openChromeDriver(int number) {
 
 		StackoverflowPage page = PageFactory.initElements(driver_e, StackoverflowPage.class);
 		page.find(number);
+	}
+
+	@Test
+	public void openGoogle() {
+
+//		Chain of invocations pattern
+//		Builder pattern
+		GooglePage page = new GooglePageBuilder().driver(driver).strSearch("1234").luckySearch(true).build();
+		page.lucky().find().clear();
+
 	}
 
 	@BeforeClass
@@ -51,6 +63,7 @@ public class TestNGExample {
 		driver.manage().timeouts().pageLoadTimeout(3, TimeUnit.SECONDS);
 		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 
+		// decorator pattern
 		driver_e = new EventFiringWebDriver(driver).register(new AbstractWebDriverEventListener() {
 
 			@Override

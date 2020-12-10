@@ -12,6 +12,10 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 // Page Object pattern
 public class StackoverflowPage extends AbstractPage {
 
+//	XPath is the direct way to find the element
+//	A single slash (/) is used for creating XPaths with absolute paths beginning from the root node.
+//	Double slash is used for creating relative XPath to start selection from anywhere within the root node
+
 	@FindBy(how = How.XPATH, using = ".//a[@class=\"question-hyperlink\"]")
 	private List<WebElement> fieldSearch;
 
@@ -29,6 +33,7 @@ public class StackoverflowPage extends AbstractPage {
 			Thread.sleep(1000);
 		} catch (InterruptedException ie) {
 		}
+		
 	}
 
 	public void find() {
