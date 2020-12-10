@@ -1,38 +1,45 @@
 package selenium.page_objects;
 
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.LoadableComponent;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.asserts.SoftAssert;
 
 // Page Object pattern
-public class GooglePage {
 
+public class GooglePage extends LoadableComponent<GooglePage> {
+
+	// *********Page Variables*********
+	private String baseURL = "https://www.google.com/";
 	private final WebDriver driver;
 	private final String strSearch;
 	private final boolean luckySearch;
 	PageProperty pageProperty;
 
-	@FindBy(how = How.NAME, using = "q")
-	private WebElement fieldSearch;
-
-//	@FindBy(how = How.XPATH, using = "//input[@class=\"RNmpXc\"]")
-//	@FindBy(how = How.XPATH, using = "//input[contains(@name='btnI')]")
-	@FindBy(how = How.XPATH, using = "//*[@id=\"tsf\"]/div[2]/div[1]/div[3]/center/input[2]")
-	private WebElement fieldLucky;
-
+	// *********Constructor*********
 	public GooglePage(GooglePageBuilder builder) {
 		this.driver = builder.driver;
 		this.strSearch = builder.strSearch;
 		this.luckySearch = builder.luckySearch;
 
 		PageFactory.initElements(driver, this);
-		driver.get("https://www.google.com/");
+//    	driver.get("https://www.google.com/");
+
+		try {
+			driver.get("https://www.google.com/");
+		} catch (TimeoutException te) {
+			System.out.println("TimeoutException occured");
+		} catch (WebDriverException e) {
+			System.out.println("WebDriverException occured");
+		}
 
 		pageProperty = new PageProperty(this.driver);
 	}
@@ -62,6 +69,29 @@ public class GooglePage {
 		}
 	}
 
+	// *********Override LoadableComponent Methods*********
+	// We need to go to the page at load method
+	@Override
+	protected void load() {
+		this.driver.get(baseURL);
+	}
+
+	// We need to check that the page has been loaded.
+	@Override
+	protected void isLoaded() throws Error {
+		Assert.assertTrue(driver.getCurrentUrl().contains(baseURL), "GooglePage is not loaded!");
+	}
+
+	// *********Web Elements*********
+	@FindBy(how = How.NAME, using = "q")
+	private WebElement fieldSearch;
+
+	// @FindBy(how = How.XPATH, using = "//input[@class=\"RNmpXc\"]")
+	// @FindBy(how = How.XPATH, using = "//input[contains(@name='btnI')]")
+	@FindBy(how = How.XPATH, using = "//*[@id=\"tsf\"]/div[2]/div[1]/div[3]/center/input[2]")
+	private WebElement fieldLucky;
+
+	// *********Page Methods*********
 	public GooglePage clear() {
 		final WebDriverWait wait = new WebDriverWait(driver, 5);
 
@@ -118,9 +148,9 @@ public class GooglePage {
 
 		public PageProperty assertURL() {
 
-//			There are two types of Assert:
-//			- Hard Assert
-//			- Soft Assert
+			// There are two types of Assert:
+			// - Hard Assert
+			// - Soft Assert
 
 			Assert.assertEquals(url, "https://www.google.com/", "check URL");
 			Assert.assertTrue(url.contains("google.com"));
@@ -153,7 +183,7 @@ public class GooglePage {
 
 	}
 
-// assert object pattern
+	// assert object pattern
 	public GooglePage verifyPage() {
 		pageProperty.assertURL().assertTitle();
 		System.out.println("Page has url = " + pageProperty.getUrl() + " and title = " + pageProperty.getTitle());

@@ -15,8 +15,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import selenium.page_objects.GooglePage;
-import selenium.page_objects.StackoverflowPage;
 import selenium.page_objects.GooglePage.GooglePageBuilder;
+import selenium.page_objects.StackoverflowPage;
 
 public class TestNGExample {
 
@@ -39,20 +39,22 @@ public class TestNGExample {
 	@Test(enabled = false)
 	public void openGoogle() {
 
-//		Chain of invocations pattern
-//		Builder pattern
+		// Chain of invocations pattern
+		// Builder pattern
 		GooglePage page = new GooglePageBuilder().driver(driver).strSearch("1234").luckySearch(true).build();
-		page.lucky().find().clear();
+		page.get().lucky().find().clear();
 
 	}
 
-	@Test
+	@Test(enabled = true)
 	public void checkGoogle() {
 
-//		Chain of invocations pattern
-//		Builder pattern
+		// Loadable Component pattern
 		GooglePage page = new GooglePageBuilder().driver(driver).build();
-		page.verifyPage();
+
+		// After the get() method is called, the component will be loaded and ready for
+		// use.
+		page.get().verifyPage();
 
 	}
 
@@ -70,7 +72,15 @@ public class TestNGExample {
 
 		driver.manage().window().maximize();
 		driver.manage().deleteAllCookies();
+
+		// a webpage needs to be loaded – the pageLoadTimeout limits the time that the
+		// script allots for a web page to be displayed.
+		// If the page does not load within the timeout the script will be stopped by a
+		// TimeoutException.
 		driver.manage().timeouts().pageLoadTimeout(3, TimeUnit.SECONDS);
+
+		// The implicit wait will tell the WebDriver to wait a certain amount of time
+		// before it throws a "No Such Element Exception."
 		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
 
 		// decorator pattern
