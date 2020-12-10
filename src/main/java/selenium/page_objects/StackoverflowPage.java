@@ -26,7 +26,7 @@ public class StackoverflowPage extends AbstractPage {
 		wait.until(ExpectedConditions.visibilityOf(fieldSearch.get(number))).click();
 
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(1000);
 		} catch (InterruptedException ie) {
 		}
 	}
