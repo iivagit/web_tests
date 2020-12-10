@@ -15,7 +15,7 @@ public class TestNGExampleFirefox {
 
 	public WebDriver driver;
 
-	@Test
+	@Test (enabled = false)
 	public void openChromeDriver() {
 		StackoverflowPage page = PageFactory.initElements(driver, StackoverflowPage.class);
 		page.find();
