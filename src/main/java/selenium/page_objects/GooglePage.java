@@ -7,6 +7,8 @@ import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
+import org.testng.asserts.SoftAssert;
 
 // Page Object pattern
 public class GooglePage {
@@ -14,6 +16,7 @@ public class GooglePage {
 	private final WebDriver driver;
 	private final String strSearch;
 	private final boolean luckySearch;
+	PageProperty pageProperty;
 
 	@FindBy(how = How.NAME, using = "q")
 	private WebElement fieldSearch;
@@ -30,6 +33,8 @@ public class GooglePage {
 
 		PageFactory.initElements(driver, this);
 		driver.get("https://www.google.com/");
+
+		pageProperty = new PageProperty(this.driver);
 	}
 
 	public static class GooglePageBuilder {
@@ -95,6 +100,63 @@ public class GooglePage {
 			}
 		}
 
+		return this;
+	}
+
+	// Value Object pattern
+
+	public class PageProperty {
+		String url;
+		String title;
+
+		public PageProperty(WebDriver driver) {
+			super();
+			url = driver.getCurrentUrl();
+			;
+			title = driver.getTitle();
+		}
+
+		public PageProperty assertURL() {
+
+//			There are two types of Assert:
+//			- Hard Assert
+//			- Soft Assert
+
+			Assert.assertEquals(url, "https://www.google.com/", "check URL");
+			Assert.assertTrue(url.contains("google.com"));
+			Assert.assertFalse(url.contains("mail.ru"));
+			Assert.assertNotNull(url);
+
+			// "verify" will not stop the test case execution if the test case fail
+			SoftAssert softAssert = new SoftAssert();
+			softAssert.assertNotNull(url, "URL check failed");
+
+			// If there is any exception and you want to throw it then you need to use
+			// assertAll() method as a last statemen
+			softAssert.assertAll();
+			return this;
+		}
+
+		public PageProperty assertTitle() {
+
+			Assert.assertEquals(title, "Google");
+			return this;
+		}
+
+		public String getUrl() {
+			return url;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+	}
+
+// assert object pattern
+	public GooglePage verifyPage() {
+		pageProperty.assertURL().assertTitle();
+		System.out.println("Page has url = " + pageProperty.getUrl() + " and title = " + pageProperty.getTitle());
 		return this;
 	}
 }

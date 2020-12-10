@@ -36,13 +36,23 @@ public class TestNGExample {
 		page.find(number);
 	}
 
-	@Test
+	@Test(enabled = false)
 	public void openGoogle() {
 
 //		Chain of invocations pattern
 //		Builder pattern
 		GooglePage page = new GooglePageBuilder().driver(driver).strSearch("1234").luckySearch(true).build();
 		page.lucky().find().clear();
+
+	}
+
+	@Test
+	public void checkGoogle() {
+
+//		Chain of invocations pattern
+//		Builder pattern
+		GooglePage page = new GooglePageBuilder().driver(driver).build();
+		page.verifyPage();
 
 	}
 
