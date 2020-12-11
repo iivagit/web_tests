@@ -14,57 +14,42 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import pool.ObjectPool;
 import selenium.page_objects.GooglePage;
 import selenium.page_objects.GooglePage.GooglePageBuilder;
 import selenium.page_objects.StackoverflowPage;
 
-public class TestNGExample {
+public class TestNGExamplePool {
 
 	public WebDriver driver;
 	EventFiringWebDriver driver_e;
-
-	// data provider pattern
-	@DataProvider(name = "data-provider-link-number")
-	public Object[][] createDriver() {
-		return new Object[][] { { Integer.valueOf(2) }, };
-	}
-
-	@Test(dataProvider = "data-provider-link-number", priority = 0, enabled = false)
-	public void openChromeDriver(int number) {
-
-		StackoverflowPage page = PageFactory.initElements(driver_e, StackoverflowPage.class);
-		page.find(number);
-	}
+	final ObjectPool pool = new ObjectPool(3);
+	
+//	Behavior Spacification example.
+//	Feature: Poll verification 
+//	In oreder to check web driver pool creation I want to open 2 different web pages as soon as possible
+//	Scenario
+//	Given: a web driver pool has been created
+//	When: I get two web drivers from pool with different urls
+//	Then: Two different web pages should be opened without significant delays.
 
 	@Test(enabled = true)
-	public void openGoogle() {
+	public void openBrowsers() {
+		WebDriver driver1 = pool.get();
+		driver1.manage().window().maximize();
+		GooglePage page1 = new GooglePageBuilder().driver(driver1).build();
 
-		// Chain of invocations pattern
-		// Builder pattern
-		GooglePage page = new GooglePageBuilder().driver(driver).strSearch("1234").luckySearch(true).build();
-		page.get().lucky().find().clear();
+		WebDriver driver2 = pool.get();
+		driver2.manage().window().maximize();
+		StackoverflowPage page2 = PageFactory.initElements(driver2, StackoverflowPage.class);
 
-	}
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException ie) {
+		}
 
-	@Test(enabled = false)
-	public void checkGoogle() {
-
-		// Loadable Component pattern
-		GooglePage page = new GooglePageBuilder().driver(driver).build();
-
-		// After the get() method is called, the component will be loaded and ready for
-		// use.
-		page.get().verifyPage();
-
-	}
-
-	@Test(enabled = true)
-	public void doStepsGoogle() {
-
-		// Steps pattern
-		GooglePage page = new GooglePageBuilder().driver(driver).build();
-		page.get();
-		page.doSomeSteps();
+		driver1.close();
+		driver2.close();
 	}
 
 	@BeforeClass
@@ -77,7 +62,12 @@ public class TestNGExample {
 		// When debugging issues, it is helpful to enable more verbose logging
 		System.setProperty("webdriver.chrome.verboseLogging", "true");
 
-		driver = new ChromeDriver();
+		// Object Pool/Flyweight pattern
+		driver = pool.get();
+		if (driver == null) {
+			System.out.println("driver is null! ");
+			driver = new ChromeDriver();
+		}
 
 		driver.manage().window().maximize();
 		driver.manage().deleteAllCookies();
@@ -117,6 +107,7 @@ public class TestNGExample {
 		}
 
 		Reporter.log("Driver Closed After Testing", true);
+		pool.shutdown();
 	}
 
 }

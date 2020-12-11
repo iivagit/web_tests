@@ -142,7 +142,6 @@ public class GooglePage extends LoadableComponent<GooglePage> {
 		public PageProperty(WebDriver driver) {
 			super();
 			url = driver.getCurrentUrl();
-			;
 			title = driver.getTitle();
 		}
 
@@ -189,4 +188,34 @@ public class GooglePage extends LoadableComponent<GooglePage> {
 		System.out.println("Page has url = " + pageProperty.getUrl() + " and title = " + pageProperty.getTitle());
 		return this;
 	}
+	
+	// steps pattern
+	
+	public class TestSteps {
+		private WebDriver driver;
+		
+		public TestSteps(WebDriver driver) {
+			super();
+			this.driver = driver;
+		}
+		
+		public void pressImFeelingLucky()
+		{
+			final WebDriverWait wait = new WebDriverWait(driver, 5);
+
+			wait.until(ExpectedConditions.visibilityOf(GooglePage.this.fieldLucky)).click();
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException ie) {
+			}			
+		}
+	}
+	
+	public void doSomeSteps()
+	{
+		TestSteps testSteps = new TestSteps(driver);
+		testSteps.pressImFeelingLucky();
+	}
+
 }
