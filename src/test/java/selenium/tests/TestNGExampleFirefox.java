@@ -26,6 +26,9 @@ public class TestNGExampleFirefox {
 
 		System.setProperty("webdriver.gecko.driver", "C:\\Selenium\\geckodriver.exe");
 		driver = new FirefoxDriver();
+		// WebDriver driver=new InternetExplorerDriver();
+		// WebDriver driver = new OperaDriver();
+		// WebDriver driver = new EdgeDriver();
 
 		driver.manage().window().maximize();
 		driver.manage().deleteAllCookies();
