@@ -1,4 +1,4 @@
-package pool;
+package selenium.pool;
 
 // SOLID
 // S - The single responsibility principle

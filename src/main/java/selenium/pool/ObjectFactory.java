@@ -1,4 +1,4 @@
-package pool;
+package selenium.pool;
 
 
 public interface ObjectFactory<T> {

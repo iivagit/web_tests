@@ -36,7 +36,10 @@ public class TestNGExample {
 	}
 
 	// The default value is zero for priority
-	@Test(dataProvider = "data-provider-link-number", priority = 1, enabled = true)
+	// <invocationCount> attribute call a method multiple times
+	// threadPoolSize - threads number
+	// WebDriver is not thread-safe
+	@Test(dataProvider = "data-provider-link-number", priority = 1, enabled = true, invocationCount = 2, threadPoolSize = 2)
 	public void openStackoverflowPage(int number) {
 
 		// SOLID

@@ -13,10 +13,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import pool.ObjectPool;
 import selenium.page_objects.GooglePage;
 import selenium.page_objects.GooglePage.GooglePageBuilder;
 import selenium.page_objects.StackoverflowPage;
+import selenium.pool.ObjectPool;
 
 public class TestNGExamplePool {
 
