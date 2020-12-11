@@ -1,7 +1,13 @@
 package selenium.tests;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -29,15 +35,22 @@ public class TestNGExample {
 		return new Object[][] { { Integer.valueOf(2) }, };
 	}
 
-	@Test(dataProvider = "data-provider-link-number", priority = 0, enabled = false)
-	public void openChromeDriver(int number) {
+	// The default value is zero for priority
+	@Test(dataProvider = "data-provider-link-number", priority = 1, enabled = true)
+	public void openStackoverflowPage(int number) {
 
+		// SOLID
+		// DIP (Dependency inversion principle)
+
+		// Page Factory pattern
+		// Page Factory initializes web elements that are defined in web page classes or
+		// Page Objects
 		StackoverflowPage page = PageFactory.initElements(driver_e, StackoverflowPage.class);
 		page.find(number);
 	}
 
 	@Test(enabled = true)
-	public void openGoogle() {
+	public void openGooglePage() {
 
 		// Chain of invocations pattern
 		// Builder pattern
@@ -46,8 +59,8 @@ public class TestNGExample {
 
 	}
 
-	@Test(enabled = false)
-	public void checkGoogle() {
+	@Test(enabled = true)
+	public void checkGooglePage() {
 
 		// Loadable Component pattern
 		GooglePage page = new GooglePageBuilder().driver(driver).build();
@@ -55,7 +68,6 @@ public class TestNGExample {
 		// After the get() method is called, the component will be loaded and ready for
 		// use.
 		page.get().verifyPage();
-
 	}
 
 	@Test(enabled = true)
@@ -65,6 +77,33 @@ public class TestNGExample {
 		GooglePage page = new GooglePageBuilder().driver(driver).build();
 		page.get();
 		page.doSomeSteps();
+	}
+
+	@Test(enabled = true)
+	public void checkJavaScript() {
+
+		StackoverflowPage page = PageFactory.initElements(driver, StackoverflowPage.class);
+		page.find();
+
+		JavascriptExecutor jse = (JavascriptExecutor) driver;
+		if (jse instanceof WebDriver) {
+			jse.executeScript("window.history.go(0)");
+			jse.executeScript("window.history.go(-1)");
+			jse.executeScript("window.history.forward(-1)");
+		}
+	}
+
+	@Test(enabled = true)
+	public void getScreenshot() {
+
+		PageFactory.initElements(driver, StackoverflowPage.class);
+
+		File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+		try {
+			FileUtils.copyFile(scrFile, new File("C:\\Selenium\\screenshot1.jpg"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@BeforeClass
@@ -86,11 +125,11 @@ public class TestNGExample {
 		// script allots for a web page to be displayed.
 		// If the page does not load within the timeout the script will be stopped by a
 		// TimeoutException.
-		driver.manage().timeouts().pageLoadTimeout(3, TimeUnit.SECONDS);
+		driver.manage().timeouts().pageLoadTimeout(5, TimeUnit.SECONDS);
 
 		// The implicit wait will tell the WebDriver to wait a certain amount of time
 		// before it throws a "No Such Element Exception."
-		driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 
 		// decorator pattern
 		driver_e = new EventFiringWebDriver(driver).register(new AbstractWebDriverEventListener() {
@@ -118,5 +157,10 @@ public class TestNGExample {
 
 		Reporter.log("Driver Closed After Testing", true);
 	}
+
+	// BeforeSuite / AfterSuite
+	// BeforeTest / AfterTest
+	// BeforeClass / AfterClass
+	// BeforeMethod / AfterMethod
 
 }

@@ -1,9 +1,18 @@
 package selenium.page_objects;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 import org.openqa.selenium.support.PageFactory;
@@ -18,11 +27,14 @@ import org.testng.asserts.SoftAssert;
 public class GooglePage extends LoadableComponent<GooglePage> {
 
 	// *********Page Variables*********
-	private String baseURL = "https://www.google.com/";
+	private String baseURL;
 	private final WebDriver driver;
 	private final String strSearch;
 	private final boolean luckySearch;
 	PageProperty pageProperty;
+
+	// Create Properties class object to read properties file
+	public Properties obj = new Properties();
 
 	// *********Constructor*********
 	public GooglePage(GooglePageBuilder builder) {
@@ -31,14 +43,31 @@ public class GooglePage extends LoadableComponent<GooglePage> {
 		this.luckySearch = builder.luckySearch;
 
 		PageFactory.initElements(driver, this);
-//    	driver.get("https://www.google.com/");
 
+		// load properties
+		// Create FileInputStream object and Load file
+		FileInputStream objfile;
 		try {
-			driver.get("https://www.google.com/");
+			objfile = new FileInputStream(System.getProperty("user.dir") + "\\Object_Repo.properties");
+			obj.load(objfile);
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		baseURL = obj.getProperty("google.path");
+		System.out.println("Property class loaded baseURL = " + baseURL);
+
+		// The Recovery Scenario In Selenium WebDriver
+		try {
+			driver.get(baseURL);
 		} catch (TimeoutException te) {
 			System.out.println("TimeoutException occured");
 		} catch (WebDriverException e) {
 			System.out.println("WebDriverException occured");
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
 
 		pageProperty = new PageProperty(this.driver);
@@ -87,7 +116,7 @@ public class GooglePage extends LoadableComponent<GooglePage> {
 	private WebElement fieldSearch;
 
 	// @FindBy(how = How.XPATH, using = "//input[@class=\"RNmpXc\"]")
-	// @FindBy(how = How.XPATH, using = "//input[contains(@name='btnI')]")
+//	 @FindBy(how = How.XPATH, using = "//input[contains(@name='btnI')]")
 	@FindBy(how = How.XPATH, using = "//*[@id=\"tsf\"]/div[2]/div[1]/div[3]/center/input[2]")
 	private WebElement fieldLucky;
 
@@ -151,7 +180,7 @@ public class GooglePage extends LoadableComponent<GooglePage> {
 			// - Hard Assert
 			// - Soft Assert
 
-			Assert.assertEquals(url, "https://www.google.com/", "check URL");
+			Assert.assertEquals(url, baseURL, "check URL");
 			Assert.assertTrue(url.contains("google.com"));
 			Assert.assertFalse(url.contains("mail.ru"));
 			Assert.assertNotNull(url);
@@ -186,34 +215,64 @@ public class GooglePage extends LoadableComponent<GooglePage> {
 	public GooglePage verifyPage() {
 		pageProperty.assertURL().assertTitle();
 		System.out.println("Page has url = " + pageProperty.getUrl() + " and title = " + pageProperty.getTitle());
+		System.out.println("Page has windoe handler = " + GooglePage.this.driver.getWindowHandle());
+
+		String luckyXpath = GooglePage.this.obj.getProperty("lucky.xpath");
+		System.out.println("Lucky button has width = "
+				+ GooglePage.this.driver.findElement(By.xpath(luckyXpath)).getSize().getWidth());
+		System.out.println(
+				"Lucky button has enability = " + GooglePage.this.driver.findElement(By.xpath(luckyXpath)).isEnabled());
+
+		try {
+			GooglePage.this.driver.switchTo().window(GooglePage.this.driver.getWindowHandle());
+		} catch (NoSuchWindowException e) {
+			System.out.println("NoSuchWindowException occured");
+		}
+
 		return this;
 	}
-	
+
 	// steps pattern
-	
+
 	public class TestSteps {
 		private WebDriver driver;
-		
+
 		public TestSteps(WebDriver driver) {
 			super();
 			this.driver = driver;
 		}
-		
-		public void pressImFeelingLucky()
-		{
+
+		public void pressImFeelingLucky() {
 			final WebDriverWait wait = new WebDriverWait(driver, 5);
+			Actions action = new Actions(driver);
 
 			wait.until(ExpectedConditions.visibilityOf(GooglePage.this.fieldLucky)).click();
 
+			// to refresh the current web page there by reloading all the web elements
+			driver.navigate().refresh();
+			driver.getCurrentUrl();
+			driver.navigate().to(driver.getCurrentUrl());
+
+			WebElement element = driver.findElement(By.name("q"));
+			action.moveToElement(element).perform();
+			action.doubleClick(element).perform();
+
+			try {
+				element = driver.findElement(By.xpath(GooglePage.this.obj.getProperty("lucky.xpath")));
+				action.moveToElement(element).perform();
+			} catch (NoSuchElementException te) {
+				System.out.println("NoSuchElementException occured");
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException ie) {
-			}			
+			}
 		}
 	}
-	
-	public void doSomeSteps()
-	{
+
+	public void doSomeSteps() {
 		TestSteps testSteps = new TestSteps(driver);
 		testSteps.pressImFeelingLucky();
 	}

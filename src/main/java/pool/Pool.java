@@ -1,5 +1,10 @@
 package pool;
 
+// SOLID
+// S - The single responsibility principle
+// "A class should have only one reason to change."
+// Every module or class should have responsibility over a single part of the functionality
+
 public interface Pool<T> {
 
 	/*

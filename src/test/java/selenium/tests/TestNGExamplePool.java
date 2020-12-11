@@ -11,7 +11,6 @@ import org.openqa.selenium.support.events.EventFiringWebDriver;
 import org.testng.Reporter;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import pool.ObjectPool;
@@ -24,7 +23,7 @@ public class TestNGExamplePool {
 	public WebDriver driver;
 	EventFiringWebDriver driver_e;
 	final ObjectPool pool = new ObjectPool(3);
-	
+
 //	Behavior Spacification example.
 //	Feature: Poll verification 
 //	In oreder to check web driver pool creation I want to open 2 different web pages as soon as possible
@@ -38,10 +37,11 @@ public class TestNGExamplePool {
 		WebDriver driver1 = pool.get();
 		driver1.manage().window().maximize();
 		GooglePage page1 = new GooglePageBuilder().driver(driver1).build();
+		page1.get();
 
 		WebDriver driver2 = pool.get();
 		driver2.manage().window().maximize();
-		StackoverflowPage page2 = PageFactory.initElements(driver2, StackoverflowPage.class);
+		PageFactory.initElements(driver2, StackoverflowPage.class);
 
 		try {
 			Thread.sleep(2000);

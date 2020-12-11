@@ -1,5 +1,6 @@
 package pool;
 
+
 public interface ObjectFactory<T> {
 
 	/**

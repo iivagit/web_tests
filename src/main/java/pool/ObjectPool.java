@@ -8,6 +8,14 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
+// SOLID
+// Open Closed principle
+// "Software entities should be open for extension, but closed for modification" 
+
+// SOLID
+// Interface Segregation Principle
+// "Clients should not be forced to depend upon interfaces that they do not use."
+
 public class ObjectPool implements Pool<ChromeDriver>, ObjectFactory<ChromeDriver> {
 
 	private int size;
@@ -65,4 +73,7 @@ public class ObjectPool implements Pool<ChromeDriver>, ObjectFactory<ChromeDrive
 		return driver;
 	}
 
+	public int size() {
+		return objects.size();
+	}
 }
