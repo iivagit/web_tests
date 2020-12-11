@@ -48,4 +48,11 @@ public class GetData {
 		System.out.println("response time: " + time);
 	}
 
+	
+	@Test
+	public void testPostmanEcho() {
+		get("https://postman-echo.com/GET").then().statusCode(200);
+	}
+
+	
 }
