@@ -1,0 +1,22 @@
+REST architecture:
+REST is a client-server architecture.
+REST is stateless.
+REST is cacheable. 
+REST provides a uniform interface between components.
+REST is a layered system.
+REST optionally provides code on demand. 
+
+HTTP Verb by CRUD
+POST - Create
+GET - Read	
+PUT - Update/Replace	
+PATCH - Update/Modify	
+DELETE - Delete
+
+
+HTTP status codes
+1xx informational response
+2xx success
+3xx redirection
+4xx client errors
+5xx server errors
