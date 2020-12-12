@@ -1,10 +1,17 @@
 package selenium.pool;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
@@ -23,6 +30,15 @@ public class ObjectPool implements Pool<ChromeDriver>, ObjectFactory<ChromeDrive
 	private boolean shutdown;
 	private BlockingQueue<ChromeDriver> objects;
 
+	// tread with return value
+	public class MyTask implements Callable<ChromeDriver> {
+		@Override
+		public ChromeDriver call() throws Exception {
+			// Here your implementation
+			return new ChromeDriver();
+		}
+	}
+
 	public ObjectPool(int size) {
 		this.size = size;
 		this.shutdown = false;
@@ -31,9 +47,12 @@ public class ObjectPool implements Pool<ChromeDriver>, ObjectFactory<ChromeDrive
 
 		objects = new LinkedBlockingQueue<ChromeDriver>();
 
-		for (int i = 0; i < this.size; i++) {
-			objects.add(createNew());
+		List<ChromeDriver> results = createList();
+
+		for (ChromeDriver item : results) {
+			objects.add(item);
 		}
+
 	}
 
 	/**
@@ -66,14 +85,40 @@ public class ObjectPool implements Pool<ChromeDriver>, ObjectFactory<ChromeDrive
 		objects.clear();
 	}
 
-	public ChromeDriver createNew() {
-		ChromeDriver driver = new ChromeDriver();
-		driver.manage().window().setSize(new Dimension(100, 100));
-		driver.manage().window().setPosition(new Point(-2000, 0));
-		return driver;
-	}
-
 	public int size() {
 		return objects.size();
+	}
+
+	@Override
+	public List<ChromeDriver> createList() {
+		List<ChromeDriver> results = new ArrayList<>();
+
+		ExecutorService executorService = Executors.newFixedThreadPool(this.size);
+
+		Callable<ChromeDriver> callableTask = () -> {
+			TimeUnit.MILLISECONDS.sleep(300);
+			return new ChromeDriver();
+		};
+
+		List<Callable<ChromeDriver>> callableTasks = new ArrayList<>();
+		callableTasks.add(callableTask);
+		callableTasks.add(callableTask);
+		callableTasks.add(callableTask);
+		try {
+			List<Future<ChromeDriver>> futures = executorService.invokeAll(callableTasks);
+
+			results = futures.stream().map(future -> {
+				try {
+					return future.get();
+				} catch (InterruptedException | ExecutionException e) {
+					throw new RuntimeException(e);
+				}
+			}).collect(Collectors.toList());
+
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		return results;
 	}
 }

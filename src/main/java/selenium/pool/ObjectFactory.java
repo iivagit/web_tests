@@ -1,5 +1,6 @@
 package selenium.pool;
 
+import java.util.List;
 
 public interface ObjectFactory<T> {
 
@@ -8,5 +9,5 @@ public interface ObjectFactory<T> {
 	 * 
 	 * @return T an new instance of the object type T
 	 */
-	T createNew();
+	List<T> createList();
 }

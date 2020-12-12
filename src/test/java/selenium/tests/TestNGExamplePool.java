@@ -1,5 +1,6 @@
 package selenium.tests;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.WebDriver;
@@ -26,7 +27,7 @@ public class TestNGExamplePool {
 
 //	Behavior Spacification example.
 //	Feature: Poll verification 
-//	In oreder to check web driver pool creation I want to open 2 different web pages as soon as possible
+//	In order to check web driver pool creation I want to open 2 different web pages as soon as possible
 //	Scenario
 //	Given: a web driver pool has been created
 //	When: I get two web drivers from pool with different urls
@@ -34,22 +35,32 @@ public class TestNGExamplePool {
 
 	@Test(enabled = true)
 	public void openBrowsers() {
-		WebDriver driver1 = pool.get();
-		driver1.manage().window().maximize();
-		GooglePage page1 = new GooglePageBuilder().driver(driver1).build();
-		page1.get();
 
-		WebDriver driver2 = pool.get();
-		driver2.manage().window().maximize();
-		PageFactory.initElements(driver2, StackoverflowPage.class);
+		Optional<WebDriver> optional1 = Optional.ofNullable(pool.get());
+		optional1.ifPresent(driver -> {
+			driver.manage().window().maximize();
+			GooglePage page = new GooglePageBuilder().driver(driver).build();
+			page.get();
+		});
+
+		Optional<WebDriver> optional2 = Optional.ofNullable(pool.get());
+		optional2.ifPresent(driver -> {
+			driver.manage().window().maximize();
+			PageFactory.initElements(driver, StackoverflowPage.class);
+		});
 
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException ie) {
 		}
 
-		driver1.close();
-		driver2.close();
+		if (optional1.isPresent()) {
+			optional1.get().close();
+		}
+
+		if (optional2.isPresent()) {
+			optional2.get().close();
+		}
 	}
 
 	@BeforeClass
@@ -96,11 +107,8 @@ public class TestNGExamplePool {
 
 	@AfterClass
 	public void afterClass() {
-		// driver.close() is used to close the current browser
-		// driver.quit() is used to close all the browser instances.
-
-		driver.quit();
 		try {
+			driver.quit();
 			System.out.println("Driver closed properly");
 		} catch (Exception e) {
 			System.out.println(e);
