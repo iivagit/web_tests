@@ -3,6 +3,7 @@ package selenium.tests;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.JavascriptExecutor;
@@ -28,6 +29,11 @@ public class TestNGExample {
 
 	public WebDriver driver;
 	EventFiringWebDriver driver_e;
+
+	@FunctionalInterface
+	interface Converter<F, T> {
+		T convert(F from);
+	}
 
 	// data provider pattern
 	@DataProvider(name = "data-provider-link-number")
@@ -55,9 +61,19 @@ public class TestNGExample {
 	@Test(enabled = true)
 	public void openGooglePage() {
 
+		Converter<Integer, String> converter = (from) -> Integer.toString(from);
+		String converted = converter.convert(123);
+
+		IntStream intStream = "Test".chars();
+		String strSearch = intStream.collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+				.toString();
+		System.out.println("converted = " + converted);
+		System.out.println("strSearch = " + strSearch);
+
 		// Chain of invocations pattern
 		// Builder pattern
-		GooglePage page = new GooglePageBuilder().driver(driver).strSearch("1234").luckySearch(true).build();
+		GooglePage page = new GooglePageBuilder().driver(driver).strSearch(converted + strSearch).luckySearch(true)
+				.build();
 		page.get().lucky().find().clear();
 
 	}
